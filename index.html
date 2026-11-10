@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Cẩm nang du lịch và lịch sử số - TP.HCM</title>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary: #0284c7;
+        --primary-dark: #0369a1;
+        --accent: #f59e0b;
+        --dark: #070b14;
+        --light: #f8fafc;
+        --gray: #94a3b8;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body,
+      html {
+        width: 100%;
+        height: 100%;
+        background-color: var(--dark);
+        color: var(--light);
+        overflow: hidden;
+        position: fixed;
+      }
+
+      .app-container {
+        width: 100%;
+        height: 100dvh;
+        position: relative;
+        background: var(--dark);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100dvh;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: var(--dark);
+        opacity: 0;
+        transition: opacity 0.4s ease-in-out;
+        z-index: 10;
+        padding: 15px;
+        overflow-y: auto;
+      }
+
+      .screen.active {
+        display: flex;
+        opacity: 1;
+        z-index: 20;
+      }
+
+      /* 1. Màn hình Trang chủ Du lịch */
+      #ready-screen {
+        background:
+          linear-gradient(rgba(7, 11, 20, 0.6), rgba(7, 11, 20, 0.8)),
+          url("https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=1920&auto=format&fit=crop")
+            no-repeat center center;
+        background-size: cover;
+        text-align: center;
+      }
+
+      .ready-content {
+        max-width: 800px;
+        width: 90%;
+        background: rgba(7, 11, 20, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: clamp(25px, 5vh, 45px) clamp(18px, 4vw, 35px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        animation: fadeInZoom 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        margin: auto;
+      }
+
+      .ready-badge {
+        background: rgba(245, 158, 11, 0.25);
+        color: var(--accent);
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        display: inline-block;
+        margin-bottom: 12px;
+        border: 1px solid rgba(245, 158, 11, 0.4);
+      }
+
+      .ready-content h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 800;
+        line-height: 1.25;
+        margin-bottom: 12px;
+        background: linear-gradient(to right, #ffffff, #38bdf8, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .ready-content p {
+        font-size: clamp(0.85rem, 1.8vw, 1rem);
+        color: #cbd5e1;
+        margin-bottom: 22px;
+        line-height: 1.5;
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .start-btn {
+        background: linear-gradient(135deg, #0284c7, #2563eb);
+        color: white;
+        border: none;
+        padding: clamp(12px, 2vh, 15px) clamp(25px, 4vw, 35px);
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        font-weight: 700;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.6);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .start-btn:active {
+        transform: scale(0.96);
+      }
+
+      /* 2. Màn hình Intro Video Full */
+      #intro-screen {
+        background: #000;
+        padding: 0;
+      }
+
+      #intro-video {
+        width: 100%;
+        height: 100dvh;
+        object-fit: contain;
+      }
+
+      .skip-btn {
+        position: absolute;
+        bottom: 25px;
+        right: 20px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        z-index: 35;
+        cursor: pointer;
+      }
+
+      /* 3. Màn hình Trải Nghiệm Chính */
+      #player-screen {
+        background: #000;
+        padding: 0;
+      }
+
+      .video-fullscreen-container {
+        width: 100%;
+        height: 100dvh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+      }
+
+      .video-fullscreen-container video {
+        width: 100%;
+        height: 100dvh;
+        object-fit: contain;
+        transition: opacity 0.4s ease-in-out;
+      }
+
+      /* Thanh tiêu đề nổi góc trên */
+      .floating-header {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 14px;
+        border-radius: 12px;
+        z-index: 30;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        max-width: 80vw;
+      }
+
+      .floating-header h2 {
+        font-size: clamp(0.8rem, 2vw, 0.95rem);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .floating-header span {
+        font-size: 0.65rem;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+
+      /* Nút điều khiển nổi góc dưới */
+      .floating-controls {
+        position: absolute;
+        bottom: 20px;
+        right: 15px;
+        display: flex;
+        gap: 8px;
+        z-index: 30;
+      }
+
+      .float-btn {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 9px 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Nút chạm phát hỗ trợ Autoplay bị chặn trên Mobile */
+      .tap-to-play-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100dvh;
+        background: rgba(7, 11, 20, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 40;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .tap-play-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* 4. Overlay Mã QR bắt buộc hoàn thành */
+      .qr-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100dvh;
+        background: rgba(5, 11, 20, 0.96);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 15px;
+      }
+
+      .qr-box-center {
+        background: #1e293b;
+        border: 1.5px solid var(--primary);
+        border-radius: 18px;
+        padding: clamp(20px, 3vh, 30px) clamp(18px, 3vw, 25px);
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(2, 132, 199, 0.5);
+        max-width: 400px;
+        width: 90%;
+        max-height: 90dvh;
+        overflow-y: auto;
+      }
+
+      .qr-box-center h3 {
+        font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+        color: var(--accent);
+        margin-bottom: 8px;
+        font-weight: 800;
+      }
+
+      .qr-box-center img {
+        width: clamp(130px, 30vw, 160px);
+        height: clamp(130px, 30vw, 160px);
+        border-radius: 10px;
+        margin-bottom: 12px;
+        object-fit: cover;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+        background: white;
+        padding: 6px;
+      }
+
+      .qr-box-center p {
+        font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+        color: #93c5fd;
+        font-weight: 600;
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+
+      .form-link-box {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        border-radius: 10px;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+      }
+
+      .form-link-box a {
+        font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+        color: #38bdf8;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .note-text {
+        font-size: 0.75rem;
+        color: var(--gray);
+        font-style: italic;
+        margin-top: 5px;
+      }
+
+      @keyframes fadeInZoom {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- MÀN HÌNH TRANG CHỦ -->
+      <div id="ready-screen" class="screen active">
+        <div class="ready-content">
+          <div class="ready-badge">
+            <i class="fa-solid fa-compass"></i> Khám Phá Di Sản & Du Lịch Số
+          </div>
+          <h1>Cẩm nang du lịch và lịch sử số.</h1>
+          <p>Đề tài của khối C</p>
+          <button class="start-btn" onclick="startIntro()">
+            <i class="fa-solid fa-play"></i> Khám phá ngay
+          </button>
+        </div>
+      </div>
+
+      <!-- MÀN HÌNH INTRO VIDEO (Chỉ chạy ở đầu khi bấm Khám phá từ trang chủ) -->
+      <div id="intro-screen" class="screen">
+        <video id="intro-video" playsinline></video>
+        <button class="skip-btn" onclick="skipIntro()">
+          <i class="fa-solid fa-forward"></i> Bỏ qua Intro
+        </button>
+      </div>
+
+      <!-- MÀN HÌNH TRẢI NGHIỆM CHÍNH -->
+      <div id="player-screen" class="screen">
+        <div class="video-fullscreen-container">
+          <video id="main-video" playsinline webkit-playsinline></video>
+          <audio id="bg-music" loop preload="auto"></audio>
+          <audio id="qr-audio" preload="auto"></audio>
+        </div>
+
+        <!-- Tiêu đề nổi góc trên -->
+        <div class="floating-header">
+          <span id="step-indicator">Đang chuẩn bị...</span>
+          <h2 id="branch-title">
+            <i class="fa-solid fa-compass"></i> Tên Nhánh
+          </h2>
+        </div>
+
+        <!-- Nút điều khiển nổi góc dưới -->
+        <div class="floating-controls">
+          <button class="float-btn" onclick="replayCurrentStep()">
+            <i class="fa-solid fa-rotate-right"></i> Phát lại
+          </button>
+          <button class="float-btn" onclick="goToReadyScreen()">
+            <i class="fa-solid fa-house"></i> Trang chủ
+          </button>
+        </div>
+
+        <!-- OVERLAY NÚT PHÁT KHI BỊ CHẶN AUTOPLAY -->
+        <div class="tap-to-play-overlay" id="tap-overlay">
+          <button class="tap-play-btn" onclick="manualResumePlay()">
+            <i class="fa-solid fa-circle-play"></i> Bấm để tiếp tục xem
+          </button>
+        </div>
+
+        <!-- OVERLAY MÃ QR BẮT BUỘC LÀM TRẮC NGHIỆM -->
+        <div class="qr-overlay" id="qr-overlay">
+          <div class="qr-box-center">
+            <h3>Hoàn Thành Nhánh Trải Nghiệm!</h3>
+            <img id="qr-img" src="" alt="QR Trắc Nghiệm" />
+            <p>
+              Quét mã QR hoặc bấm vào liên kết dưới đây để làm bài trắc nghiệm:
+            </p>
+
+            <div class="form-link-box">
+              <a id="form-link-a" href="#" target="_blank">
+                <i class="fa-solid fa-external-link-alt"></i>
+                <span>Mở bài trắc nghiệm nhánh này</span>
+              </a>
+            </div>
+            <div class="note-text">
+              🔒 Sau khi nộp bài trên Google Form, hệ thống sẽ tự động chuyển
+              bạn sang nhánh tiếp theo.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const BASE_URL = "./";
+
+      const branchData = {
+        1: {
+          title: "Nhánh 1: Sơ lược TP. Hồ Chí Minh",
+          aiVideo: BASE_URL + "nvainoi1.mp4",
+          qrImage: BASE_URL + "q1.png",
+          formUrl:
+            "https://docs.google.com/forms/d/e/1FAIpQLScSA3CSHU5iwzS5A9_BwU2HjrPdE1esHQW9yNQAiVIHpEGegg/viewform",
+          steps: [
+            {
+              video: BASE_URL + "nhanh1p1.mp4",
+              text: "Sơ lược TP. Hồ Chí Minh...",
+            },
+            { video: BASE_URL + "nhanh1p2.mp4", text: "Kiến trúc lâu đời..." },
+            {
+              video: BASE_URL + "nhanh1p3.mp4",
+              text: "Thành phố mang tên Bác...",
+            },
+            { video: BASE_URL + "nhanh1p4.mp4", text: "Slide kết nhánh 1..." },
+          ],
+        },
+        2: {
+          title: "Nhánh 2: Nhân vật & Sự kiện Lịch sử",
+          aiVideo: BASE_URL + "nvainoi2.mp4",
+          qrImage: BASE_URL + "q2.png",
+          formUrl:
+            "https://docs.google.com/forms/d/e/1FAIpQLSc-Akom4WLFusqdVy7qdHyib1c8AyB-Bkw6qnKY1P_O2Spyiw/viewform",
+          steps: [
+            { video: BASE_URL + "nhanh2p1.mp4", text: "Không gian lịch sử..." },
+            {
+              video: BASE_URL + "nhanh2p2.mp4",
+              text: "Chủ tịch Hồ Chí Minh...",
+            },
+            {
+              video: BASE_URL + "nhanh2p3.mp4",
+              text: "Anh hùng Võ Thị Sáu...",
+            },
+            { video: BASE_URL + "nhanh2p4.mp4", text: "Slide kết nhánh 2..." },
+          ],
+        },
+        3: {
+          title: "Nhánh 3: Ẩm thực Đặc trưng",
+          aiVideo: BASE_URL + "nvainoi3.mp4",
+          qrImage: BASE_URL + "q3.png",
+          formUrl:
+            "https://docs.google.com/forms/d/e/1FAIpQLScXnsV2KDSvdj6RkfMShLp5HVkbULeShpX0gpzO_Ml9uKVrVw/viewform",
+          steps: [
+            { video: BASE_URL + "nhanh3p1.mp4", text: "Ẩm thực phương Nam..." },
+            { video: BASE_URL + "nhanh3p2.mp4", text: "Cơm tấm, bánh mì..." },
+            {
+              video: BASE_URL + "nhanh3p3.mp4",
+              text: "Bánh canh Long Hương...",
+            },
+            { video: BASE_URL + "nhanh3p4.mp4", text: "Slide kết nhánh 3..." },
+          ],
+        },
+        4: {
+          title: "Nhánh 4: Du lịch Bà Rịa - Vũng Tàu",
+          aiVideo: BASE_URL + "nvainoi4.mp4",
+          qrImage: BASE_URL + "q4.png",
+          formUrl:
+            "https://docs.google.com/forms/d/e/1FAIpQLScyIofr_mYaZOFGYbynZRdeMEAbBYOCsgw2DMQSp4uI8-VlMQ/viewform",
+          steps: [
+            { video: BASE_URL + "nhanh4p1.mp4", text: "Bà Rịa Vũng Tàu..." },
+            { video: BASE_URL + "nhanh4p2.mp4", text: "Hòn Bà..." },
+            { video: BASE_URL + "nhanh4p3.mp4", text: "Hải đăng Vũng Tàu..." },
+            { video: BASE_URL + "nhanh4p4.mp4", text: "Slide kết nhánh 4..." },
+          ],
+        },
+      };
+
+      let currentBranchId = 1;
+      let currentStepIndex = -1;
+
+      const introVideo = document.getElementById("intro-video");
+      const mainVideo = document.getElementById("main-video");
+      const bgMusic = document.getElementById("bg-music");
+      const qrAudio = document.getElementById("qr-audio");
+      const stepIndicatorEl = document.getElementById("step-indicator");
+      const branchTitleEl = document.getElementById("branch-title");
+      const qrOverlay = document.getElementById("qr-overlay");
+      const qrImg = document.getElementById("qr-img");
+      const formLinkA = document.getElementById("form-link-a");
+      const tapOverlay = document.getElementById("tap-overlay");
+
+      function startIntro() {
+        switchScreen("intro-screen");
+        introVideo.src = BASE_URL + "intro.mp4";
+        introVideo.currentTime = 0;
+
+        introVideo.play().catch(() => {
+          console.log("Intro autoplay blocked");
+        });
+
+        introVideo.onended = () => {
+          enterMainJourney(1);
+        };
+      }
+
+      function skipIntro() {
+        introVideo.pause();
+        enterMainJourney(1);
+      }
+
+      function enterMainJourney(branchId) {
+        currentBranchId = branchId;
+        currentStepIndex = -1;
+
+        if (bgMusic.paused) {
+          bgMusic.src = BASE_URL + "nhacnen.mp3";
+          bgMusic.volume = 0.25;
+          bgMusic.play().catch((e) => console.log("Nhạc nền bị chặn autoplay"));
+        }
+
+        switchScreen("player-screen");
+        playCurrentStep();
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetBranch = urlParams.get("branch");
+
+        if (targetBranch && branchData[targetBranch]) {
+          enterMainJourney(parseInt(targetBranch));
+        }
+      });
+
+      function goToReadyScreen() {
+        stopAllMediaCompletely();
+        switchScreen("ready-screen");
+      }
+
+      function switchScreen(screenId) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(screenId).classList.add("active");
+      }
+
+      function stopVideoOnly() {
+        if (mainVideo) {
+          mainVideo.pause();
+          mainVideo.src = "";
+          mainVideo.load();
+        }
+        if (qrAudio) {
+          qrAudio.pause();
+          qrAudio.currentTime = 0;
+        }
+        if (tapOverlay) {
+          tapOverlay.style.display = "none";
+        }
+      }
+
+      function stopAllMediaCompletely() {
+        stopVideoOnly();
+        if (bgMusic) {
+          bgMusic.pause();
+          bgMusic.currentTime = 0;
+        }
+      }
+
+      function playCurrentStep() {
+        stopVideoOnly();
+
+        mainVideo.style.opacity = "0";
+        setTimeout(() => {
+          mainVideo.style.opacity = "1";
+        }, 200);
+
+        qrOverlay.style.display = "none";
+        branchTitleEl.innerHTML = `<i class="fa-solid fa-compass"></i> ${branchData[currentBranchId].title}`;
+
+        if (currentStepIndex === -1) {
+          stepIndicatorEl.innerText = "Giới thiệu nhân vật AI";
+          mainVideo.src = branchData[currentBranchId].aiVideo;
+          mainVideo.loop = false;
+
+          attemptPlayMedia(mainVideo);
+
+          mainVideo.onended = () => {
+            mainVideo.style.opacity = "0";
+            setTimeout(() => {
+              currentStepIndex = 0;
+              playCurrentStep();
+            }, 400);
+          };
+          // Cập nhật giới hạn slide thành 4 (từ index 0 đến 3)
+        } else if (currentStepIndex >= 0 && currentStepIndex < 4) {
+          const stepData = branchData[currentBranchId].steps[currentStepIndex];
+          stepIndicatorEl.innerText = `Slide nội dung ${currentStepIndex + 1} / 4`;
+
+          mainVideo.src = stepData.video;
+          mainVideo.loop = false;
+
+          attemptPlayMedia(mainVideo);
+
+          mainVideo.onended = () => {
+            mainVideo.style.opacity = "0";
+            setTimeout(() => {
+              currentStepIndex++;
+              playCurrentStep();
+            }, 400);
+          };
+        } else {
+          stepIndicatorEl.innerText = "Hoàn thành nhánh!";
+          mainVideo.pause();
+          bgMusic.pause();
+
+          const branch = branchData[currentBranchId];
+          qrImg.src = branch.qrImage;
+          formLinkA.href = branch.formUrl;
+
+          qrOverlay.style.display = "flex";
+
+          qrAudio.src = BASE_URL + "voicemaqr.mp3";
+          qrAudio.currentTime = 0;
+          qrAudio.play().catch(() => {});
+        }
+      }
+
+      function attemptPlayMedia(videoEl) {
+        if (videoEl && videoEl.src) {
+          videoEl.play().catch((err) => {
+            console.warn(
+              "Autoplay bị trình duyệt chặn, mở Overlay thủ công:",
+              err,
+            );
+            tapOverlay.style.display = "flex";
+          });
+        }
+      }
+
+      function manualResumePlay() {
+        tapOverlay.style.display = "none";
+        if (mainVideo.src) mainVideo.play().catch(() => {});
+        if (bgMusic.paused && bgMusic.src) bgMusic.play().catch(() => {});
+      }
+
+      function replayCurrentStep() {
+        qrAudio.pause();
+        qrAudio.currentTime = 0;
+        playCurrentStep();
+      }
+    </script>
+  </body>
+</html>
